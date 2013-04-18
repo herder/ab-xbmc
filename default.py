@@ -10,6 +10,7 @@ MODE_LIVE = 2
 MODE_POPULAR = 3
 MODE_PROGRAMS = 4
 MODE_VIDEOLINKS = 5
+MODE_PROGRAM_SUBCATEGORY = 6
 
 
 def STARTMENU():
@@ -47,10 +48,9 @@ def POPULAR(url):
 
 def load_json(url, params):
     request = urllib2.Request(url + '?' + params, None, {'Accept': 'application/json', 'Accept-Charset': 'utf-8', 'Content-Type': 'application/json; charset=UTF-8'}, None, False)
-    response = urllib2.urlopen(request)
-    data = response.read()
-    response.close()
-    return json.loads(data, 'ISO-8859-1')
+
+def get_programs_for_category(url, params, name):
+	addDir(name='GET SOME-- SON:' + name, url="", mode=MODE_VIDEOLINKS, iconimage='')
 
 
 def get_program_categories(url, params):
@@ -63,7 +63,11 @@ def get_program_categories(url, params):
             dirMode = MODE_PROGRAMS
         else:
             dirMode = MODE_CATEGORIES
+
+        dirMode = MODE_PROGRAM_SUBCATEGORY
+
         print "Dirmode: " + str(dirMode)
+
         addDir(name=getEscapedField(category, 'title'), url=category['url'], mode=dirMode, iconimage='')
 
 def getEscapedField(obj, name):
@@ -131,11 +135,10 @@ except:
     pass
 
 print "Mode: " + str(mode)
-print "URL: " + str(url)
+#print "URL: " + str(url)
 print "Name: " + str(name)
 
 if mode == None:
-    print ""
     STARTMENU()
 
 elif mode == MODE_CATEGORIES:
@@ -147,11 +150,13 @@ elif mode == MODE_POPULAR:
     POPULAR(url)
 
 elif mode == MODE_PROGRAMS:
-    print "" + url
     PROGRAMS(url, name)
 
 elif mode == MODE_VIDEOLINKS:
-    print "" + url
     VIDEOLINKS(url, name)
+
+elif mode == MODE_PROGRAM_SUBCATEGORY:
+    get_programs_for_category(url, PARAMS, name)
+    
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

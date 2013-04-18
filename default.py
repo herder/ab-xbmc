@@ -1,6 +1,6 @@
-import urllib, urllib2, re, xbmcplugin, xbmcgui
+import urllib, urllib2, re, xbmcplugin, xbmcgui, json
 
-SERVICE_URL = "http://tv.aftonbladet.se"
+SERVICE_URL = "http://tv.aftonbladet.se/webbtv/"
 PARAMS = "service=json"
 
 MODE_CATEGORIES = 1
@@ -17,10 +17,18 @@ def STARTMENU():
 
 
 def CATEGORIES():
-    addDir('Brott & Straff', '', MODE_PROGRAMS, '')
-    addDir('Blah', '', MODE_PROGRAMS, '')
-    addDir('Mest allt', '', MODE_PROGRAMS, '')
+    get_program_categories(SERVICE_URL, PARAMS)
 
+def get_program_categories(url, params):
+    print "Opening url: " + url
+    request = urllib2.Request(url + '?'+ params,None,{'Accept':'application/json','Accept-Charset':'utf-8','Content-Type': 'application/json; charset=UTF-8'},None,False)
+    response = urllib2.urlopen(request)
+    data=response.read()
+    response.close()
+    jsonData = json.loads(data, 'ISO-8859-1')
+    for cat in jsonData['categories']:
+        print cat
+        addDir(name=unicode(cat['title']), url=unicode(cat['url']), mode=MODE_PROGRAMS, iconimage='')
 
 def PROGRAMS(url, name):
     pass

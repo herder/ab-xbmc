@@ -9,10 +9,12 @@ PARAMS = "service=json"
 MODE_CATEGORIES = 1
 MODE_LIVE = 2
 MODE_POPULAR = 3
-MODE_PROGRAMS = 4
-MODE_VIDEOLINKS = 5
 MODE_PROGRAM_SUBCATEGORY = 6
 MODE_PROGRAMS_FOR_SUBCAT = 7
+
+
+# magic; id of this plugin's instance - cast to integer
+thisPlugin = int(sys.argv[1])
 
 
 def STARTMENU():
@@ -120,14 +122,6 @@ def getEscapedField(obj, name):
         return 'FAILWHALE'
 
 
-def PROGRAMS(url, name):
-    pass
-
-
-def VIDEOLINKS(url, name):
-    pass
-
-
 def get_params():
     param = []
     param_string = sys.argv[2]
@@ -145,19 +139,17 @@ def get_params():
 
 
 def addLink(name, url, iconimage, description, linkCount):
-    ok = True
     liz = xbmcgui.ListItem(name, iconImage=iconimage, thumbnailImage=iconimage)
     liz.setInfo(type="Video", infoLabels={"Title": name, "Description": description})
-    ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=liz, totalItems=linkCount)
+    ok = xbmcplugin.addDirectoryItem(handle=thisPlugin, url=url, listitem=liz, totalItems=linkCount)
     return ok
 
 
 def addDir(name, url, mode, iconimage):
     u = sys.argv[0] + "?url=" + urllib.quote_plus(url) + "&mode=" + str(mode) + "&name=" + urllib.quote_plus(name)
-    ok = True
     liz = xbmcgui.ListItem(name, iconImage=iconimage, thumbnailImage=iconimage)
     liz.setInfo(type="Video", infoLabels={"Title": name})
-    ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz, isFolder=True)
+    ok = xbmcplugin.addDirectoryItem(handle=thisPlugin, url=u, listitem=liz, isFolder=True)
     return ok
 
 
@@ -179,10 +171,6 @@ try:
 except:
     pass
 
-print "Mode: " + str(mode)
-#print "URL: " + str(url)
-print "Name: " + str(name)
-
 if mode == None:
     STARTMENU()
 
@@ -198,16 +186,10 @@ elif mode == MODE_POPULAR:
 elif mode == MODE_LIVE:
     LIVE(url)
 
-elif mode == MODE_PROGRAMS:
-    PROGRAMS(url, name)
-
-elif mode == MODE_VIDEOLINKS:
-    VIDEOLINKS(url, name)
-
 elif mode == MODE_PROGRAM_SUBCATEGORY:
     get_subcategories_for_category(url, PARAMS, name)
 
 elif mode == MODE_PROGRAMS_FOR_SUBCAT:
     get_programs_for_subcategory(url, PARAMS, name)
 
-xbmcplugin.endOfDirectory(int(sys.argv[1]))
+xbmcplugin.endOfDirectory(thisPlugin)

@@ -22,15 +22,18 @@ def STARTMENU():
 
 
 def add_video_link(articleData):
-    data = json.load(urllib2.urlopen(SERVICE_TRANSLATIONS_SERVER + "?id=" + articleData['aptomaId']))
+    data = load_json(SERVICE_TRANSLATIONS_SERVER, "id=" + articleData['aptomaId'])
     videoId = None
     for item in data['items']:
         if item['id'] == articleData['aptomaId']:
+            print "Found id"
             videoId = item['videoId']
     if videoId:
-        videoLinks = json.load(urllib2.urlopen(VIDEO_LINKS_SERVER + "?id=" + videoId))
-        addLink(getEscapedField(articleData, 'title'), videoLinks['formats']['http'][0]['path'],
-                articleData['image']['moduleEpisodeUri'])
+        videoLinks = load_json(VIDEO_LINKS_SERVER, "id=" + videoId)
+        print "Found data: " + str(data)
+        addLink(getEscapedField(articleData, 'title'), videoLinks['formats']['http'][0]['path'], articleData['image']['moduleEpisodeUri'], getEscapedField(articleData, 'description'))
+    else:
+        print "Could not find video Url for id " + articleData['aptomaId']
 
 
 def CATEGORIES(url):
@@ -133,10 +136,10 @@ def get_params():
     return param
 
 
-def addLink(name, url, iconimage):
+def addLink(name, url, iconimage, description):
     ok = True
     liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
-    liz.setInfo(type="Video", infoLabels={"Title": name})
+    liz.setInfo(type="Video", infoLabels={"Title": name, "Description":description})
     ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=liz)
     return ok
 

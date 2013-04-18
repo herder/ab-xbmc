@@ -1,4 +1,4 @@
-import urllib, urllib2, re, xbmc, xbmcplugin, xbmcgui, json
+import urllib, urllib2, xbmcplugin, xbmcgui, json
 
 SERVICE_URL = "http://tv.aftonbladet.se/webbtv/"
 SERVICE_TRANSLATIONS_SERVER = "http://aftonbladet-play.drlib.aptoma.no/video.json"
@@ -19,12 +19,18 @@ def STARTMENU():
 
 
 def add_video_link(articleData):
-    data = json.load(urllib2.urlopen("http://aftonbladet-play.drlib.aptoma.no/video.json?id=" + articleData['aptomaId']))
+    data = json.load(urllib2.urlopen(SERVICE_TRANSLATIONS_SERVER + "?id=" + articleData['aptomaId']))
     print data
-    videoId = data['items'][0]['videoId']
-    videoLinks = json.load(urllib2.urlopen(VIDEO_LINKS_SERVER + "?id=" + videoId))
-    print data
-    addLink(getEscapedField(articleData, 'title'), videoLinks['formats']['http'][0]['path'], articleData['image']['moduleEpisodeUri'])
+    videoId = None
+    for item in data['items']:
+        if item['id'] == articleData['aptomaId']:
+            videoId = item['videoId']
+    if videoId:
+        videoLinks = json.load(urllib2.urlopen(VIDEO_LINKS_SERVER + "?id=" + videoId))
+        print "Found data: " + str(data)
+        addLink(getEscapedField(articleData, 'title'), videoLinks['formats']['http'][0]['path'], articleData['image']['moduleEpisodeUri'])
+    else:
+        print "Could not find video Url for id " + articleData['aptomaId']
 
 def CATEGORIES(url):
     get_program_categories(url, PARAMS)
@@ -36,7 +42,7 @@ def POPULAR(url):
         url = SERVICE_URL
         jsonData = load_json(url, PARAMS)
         for program in jsonData['hotPrograms']:
-            addDir(name=getEscapedField(program, 'title'), url=program['aptomaId'], mode=MODE_PROGRAMS, iconimage='')
+            add_video_link(program)
 
 
 def load_json(url, params):
@@ -59,10 +65,6 @@ def get_program_categories(url, params):
             dirMode = MODE_CATEGORIES
         print "Dirmode: " + str(dirMode)
         addDir(name=getEscapedField(category, 'title'), url=category['url'], mode=dirMode, iconimage='')
-
-    if jsonData['hotPrograms']:
-        for video in jsonData['hotPrograms']:
-            add_video_link(video)
 
 def getEscapedField(obj, name):
     try:

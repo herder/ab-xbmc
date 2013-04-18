@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.aftonbladet"
-       name="Aftonbladet"
+       name="Aftonbladet TV"
        version="1.0.0"
-       provider-name="AB">
+       provider-name="Aftonbladet">
     <requires>
         <import addon="script.module.socksipy" version="2.0.0"/>
         <import addon="xbmc.python" version="2.1.0"/>
@@ -14,8 +14,8 @@
     <extension point="xbmc.addon.metadata">
 	<language>en</language>
         <platform>all</platform>
-        <summary>Aftonbladet</summary>
-        <description>Hetast av alla.</description>
+        <summary>Aftonbladet TV</summary>
+        <description>Kolla de bästa programmen i universum.</description>
     	<disclaimer>GET SOME</disclaimer>
     </extension>
 </addon>

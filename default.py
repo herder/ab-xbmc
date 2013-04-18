@@ -21,7 +21,7 @@ MODE_PROGRAMS_FOR_SUBCAT = 7
 thisPlugin = int(sys.argv[1])
 
 
-def STARTMENU():
+def get_start_menu():
     addDir('Kategorier', '', MODE_CATEGORIES, '')
     addDir('LIVE', '', MODE_LIVE, '')
     addDir('Mest sett just nu', '', MODE_POPULAR, '')
@@ -172,7 +172,7 @@ except:
     pass
 
 if mode is None:
-    STARTMENU()
+    get_start_menu()
 
 elif mode == MODE_CATEGORIES:
     if url is None:

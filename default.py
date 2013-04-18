@@ -27,9 +27,16 @@ def get_program_categories(url, params):
     response.close()
     jsonData = json.loads(data, 'ISO-8859-1')
     for cat in jsonData['categories']:
-        print cat
-        addDir(name=unicode(cat['title']), url=unicode(cat['url']), mode=MODE_PROGRAMS, iconimage='')
+        addDir(name=getEscapedField(cat,'title'), url=unicode(cat['url']), mode=MODE_PROGRAMS, iconimage='')
 
+
+def getEscapedField(obj,name):
+	try:
+		return obj[name].encode("ascii","ignore")
+	except Exception, e:
+		print e
+		return 'FAILWHALE'
+    
 def PROGRAMS(url, name):
     pass
 

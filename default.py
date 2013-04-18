@@ -31,7 +31,18 @@ def add_video_link(articleData):
     if videoId:
         videoLinks = load_json(VIDEO_LINKS_SERVER, "id=" + videoId)
         print "Found data: " + str(data)
-        addLink(getEscapedField(articleData, 'title'), videoLinks['formats']['http'][0]['path'], articleData['image']['moduleEpisodeUri'], getEscapedField(articleData, 'description'))
+        description = ''
+        if articleData['description']:
+            description = getEscapedField(articleData,'description')
+        image = ''
+        if articleData['image']:
+            image = articleData['image']['moduleEpisodeUri']
+
+        title  = getEscapedField(articleData, 'title')
+        episode_ = articleData['episode']
+        if episode_:
+            title = title + " " + str(episode_)
+        addLink(title, videoLinks['formats']['http'][0]['path'], image, description)
     else:
         print "Could not find video Url for id " + articleData['aptomaId']
 
@@ -90,16 +101,11 @@ def get_program_categories(url, params):
     print "Opening url: " + url
     jsonData = load_json(url, params)
     for category in jsonData['categories']:
-        print category
-        children = category['children']
-        if not children:
-            dirMode = MODE_PROGRAMS
-        else:
-            dirMode = MODE_CATEGORIES
+        iconimage = ''
 
+        if category['image']:
+            iconimage = category['image']['']
         dirMode = MODE_PROGRAM_SUBCATEGORY
-
-        #print "Dirmode: " + str(dirMode)
 
         addDir(name=getEscapedField(category, 'title'), url=category['url'], mode=dirMode, iconimage='')
 
@@ -138,8 +144,8 @@ def get_params():
 
 def addLink(name, url, iconimage, description):
     ok = True
-    liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
-    liz.setInfo(type="Video", infoLabels={"Title": name, "Description":description})
+    liz = xbmcgui.ListItem(name, iconImage=iconimage, thumbnailImage=iconimage)
+    liz.setInfo(type="Video", infoLabels={"Title": name, "Description": description})
     ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=liz)
     return ok
 
@@ -147,7 +153,7 @@ def addLink(name, url, iconimage, description):
 def addDir(name, url, mode, iconimage):
     u = sys.argv[0] + "?url=" + urllib.quote_plus(url) + "&mode=" + str(mode) + "&name=" + urllib.quote_plus(name)
     ok = True
-    liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+    liz = xbmcgui.ListItem(name, iconImage=iconimage, thumbnailImage=iconimage)
     liz.setInfo(type="Video", infoLabels={"Title": name})
     ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz, isFolder=True)
     return ok

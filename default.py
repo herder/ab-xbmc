@@ -1,3 +1,4 @@
+# coding=utf-8
 import urllib, urllib2, xbmcplugin, xbmcgui, json
 
 SERVICE_URL = "http://tv.aftonbladet.se/webbtv/"
@@ -12,6 +13,7 @@ MODE_PROGRAMS = 4
 MODE_VIDEOLINKS = 5
 MODE_PROGRAM_SUBCATEGORY = 6
 MODE_PROGRAMS_FOR_SUBCAT = 7
+
 
 def STARTMENU():
     addDir('Kategorier', '', MODE_CATEGORIES, '')
@@ -36,12 +38,23 @@ def CATEGORIES(url):
 
 
 def POPULAR(url):
+    get_category(url, 'hotPrograms')
+
+
+def LIVE(url):
+    get_category(url, 'liveVideos')
+
+
+def get_category(url, name):
     if url is None:
         print "URL == None, setting default"
         url = SERVICE_URL
-        jsonData = load_json(url, PARAMS)
-        for program in jsonData['hotPrograms']:
-            add_video_link(program)
+    jsonData = load_json(url, PARAMS)
+    if len(jsonData[name]) < 1:
+        addDir(name='Inga videos för tillfället', url=url, mode=None, iconimage='')
+        return
+    for program in jsonData[name]:
+        add_video_link(program)
 
 
 def load_json(url, params):
@@ -68,6 +81,7 @@ def get_programs_for_subcategory(url, params, name):
     jsonData = load_json(url, params)
     for related in jsonData['playerData']['relatedVideos']:
         add_video_link(related)
+
 
 def get_program_categories(url, params):
     print "Opening url: " + url
@@ -166,8 +180,12 @@ elif mode == MODE_CATEGORIES:
         print "URL == None, setting default"
         url = SERVICE_URL
     CATEGORIES(url)
+
 elif mode == MODE_POPULAR:
     POPULAR(url)
+
+elif mode == MODE_LIVE:
+    LIVE(url)
 
 elif mode == MODE_PROGRAMS:
     PROGRAMS(url, name)
@@ -180,7 +198,5 @@ elif mode == MODE_PROGRAM_SUBCATEGORY:
 
 elif mode == MODE_PROGRAMS_FOR_SUBCAT:
     get_programs_for_subcategory(url, PARAMS, name)
-
-
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

@@ -1,23 +1,27 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui
 
-#TV DASH - by You 2008.
-
 SERVICE_URL = "http://tv.aftonbladet.se"
 PARAMS = "service=json"
 
-def CATEGORIES():
-    addDir('Hej','',1,'')
-    addDir( '','',1,'')
+MODE_CATEGORIES=1
+MODE_LIVE=2
+MODE_POPULAR=3
+MODE_PROGRAMS=4
+MODE_VIDEOLINKS=5
 
-def INDEX(url):
-    req = urllib2.Request(url)
-    req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
-    response = urllib2.urlopen(req)
-    link=response.read()
-    response.close()
-    match=re.compile('').findall(link)
-    for thumbnail,url,name in match:
-        addDir(name,url,2,thumbnail)
+def STARTMENU():
+    addDir('Kategorier','',MODE_CATEGORIES,'')
+    addDir('LIVE','',MODE_LIVE,'')
+    addDir('Mest sett just nu','',MODE_POPULAR,'')
+
+def CATEGORIES(url):
+    print("Cat url: " + url)
+    addDir('Brott & Straff','',MODE_PROGRAMS,'')
+    addDir('Blah','',MODE_PROGRAMS,'')
+    addDir('Mest allt','',MODE_PROGRAMS,'')
+
+def PROGRAMS(url, name):
+    pass
 
 def VIDEOLINKS(url,name):
     req = urllib2.Request(url)
@@ -91,15 +95,21 @@ print "Mode: "+str(mode)
 print "URL: "+str(url)
 print "Name: "+str(name)
 
+
+
 if mode==None or url==None or len(url)<1:
     print ""
-    CATEGORIES()
+    STARTMENU()
 
-elif mode==1:
+elif mode==MODE_CATEGORIES:
     print ""+url
-    INDEX(url)
+    CATEGORIES(url)
 
-elif mode==2:
+elif mode==MODE_PROGRAMS:
+    print ""+url
+    PROGRAMS(url,name)
+
+elif mode==MODE_VIDEOLINKS:
     print ""+url
     VIDEOLINKS(url,name)
 

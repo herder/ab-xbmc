@@ -79,19 +79,16 @@ def VIDEOLINKS(url, name):
 
 def get_params():
     param = []
-    paramstring = sys.argv[2]
-    if len(paramstring) >= 2:
+    param_string = sys.argv[2]
+    if len(param_string) >= 2:
         params = sys.argv[2]
-        cleanedparams = params.replace('?', '')
-        if (params[len(params) - 1] == '/'):
-            params = params[0:len(params) - 2]
-        pairsofparams = cleanedparams.split('&')
+        cleaned_params = params.replace('?', '')
+        pairs_of_params = cleaned_params.split('&')
         param = {}
-        for i in range(len(pairsofparams)):
-            splitparams = {}
-            splitparams = pairsofparams[i].split('=')
-            if (len(splitparams)) == 2:
-                param[splitparams[0]] = splitparams[1]
+        for i in range(len(pairs_of_params)):
+            split_params = pairs_of_params[i].split('=')
+            if (len(split_params)) == 2:
+                param[split_params[0]] = split_params[1]
 
     return param
 

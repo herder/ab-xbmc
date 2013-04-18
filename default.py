@@ -53,15 +53,11 @@ def add_video_link(articleData, linkCount):
         print "Could not find video Url for id " + articleData['aptomaId']
 
 
-def CATEGORIES(url):
-    get_program_categories(url, PARAMS)
-
-
-def POPULAR(url):
+def get_most_popular_videos(url):
     get_category(url, 'hotPrograms')
 
 
-def LIVE(url):
+def get_live_videos(url):
     get_category(url, 'liveVideos')
 
 
@@ -175,20 +171,20 @@ try:
 except:
     pass
 
-if mode == None:
+if mode is None:
     STARTMENU()
 
 elif mode == MODE_CATEGORIES:
-    if url == None:
+    if url is None:
         print "URL == None, setting default"
         url = SERVICE_URL
-    CATEGORIES(url)
+    get_program_categories(url, PARAMS)
 
 elif mode == MODE_POPULAR:
-    POPULAR(url)
+    get_most_popular_videos(url)
 
 elif mode == MODE_LIVE:
-    LIVE(url)
+    get_live_videos(url)
 
 elif mode == MODE_PROGRAM_SUBCATEGORY:
     get_subcategories_for_category(url, PARAMS, name)

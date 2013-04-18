@@ -1,5 +1,9 @@
 # coding=utf-8
-import urllib, urllib2, xbmcplugin, xbmcgui, json
+import urllib
+import urllib2
+import xbmcplugin
+import xbmcgui
+import json
 
 SERVICE_URL = "http://tv.aftonbladet.se/webbtv/"
 SERVICE_TRANSLATIONS_SERVER = "http://aftonbladet-play.drlib.aptoma.no/video.json"

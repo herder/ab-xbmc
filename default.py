@@ -1,6 +1,8 @@
 import urllib, urllib2, re, xbmcplugin, xbmcgui, json
 
 SERVICE_URL = "http://tv.aftonbladet.se/webbtv/"
+SERVICE_TRANSLATIONS_SERVER = "http://aftonbladet-play.drlib.aptoma.no/video.json"
+VIDEO_LINKS_SERVER = "http://aftonbladet-play.videodata.drvideo.aptoma.no/actions/video/native/"
 PARAMS = "service=json"
 
 MODE_CATEGORIES = 1
@@ -15,9 +17,14 @@ def STARTMENU():
     addDir('LIVE', '', MODE_LIVE, '')
     addDir('Mest sett just nu', '', MODE_POPULAR, '')
 
+def open_article(articleData):
+    data = json.load(urllib2.urlopen("http://aftonbladet-play.drlib.aptoma.no/video.json?id=" + articleData['aptomaId']))
+    videoId = data['items'][0]['videoId']
+    videoLinks = json.load(urllib2.urlopen(VIDEO_LINKS_SERVER + "?id=" + videoId))
+    addDir(data['title'], videoLinks['formats']['http'][0]['path'])
 
-def CATEGORIES():
-    get_program_categories(SERVICE_URL, PARAMS)
+def CATEGORIES(url):
+    get_program_categories(url, PARAMS)
 
 def get_program_categories(url, params):
     print "Opening url: " + url
@@ -25,9 +32,16 @@ def get_program_categories(url, params):
     response = urllib2.urlopen(request)
     data=response.read()
     response.close()
-    jsonData = json.loads(data, 'ISO-8859-1')
-    for cat in jsonData['categories']:
-        addDir(name=getEscapedField(cat,'title'), url=unicode(cat['url']), mode=MODE_PROGRAMS, iconimage='')
+    jsonData = json.loads(data,'ISO-8859-1')
+    for category in jsonData['categories']:
+        children = category['children']
+        if not children:
+            dirMode = MODE_PROGRAMS
+        else:
+            dirMode = MODE_CATEGORIES
+        print "Dirmode: " + str(dirMode)
+        addDir(name=getEscapedField(category, 'title'), url=category['url'], mode=dirMode, iconimage='')
+
 
 
 def getEscapedField(obj,name):
@@ -116,7 +130,10 @@ if mode == None:
     STARTMENU()
 
 elif mode == MODE_CATEGORIES:
-    CATEGORIES()
+    if url == None:
+        print "URL == None, setting default"
+        url = SERVICE_URL
+    CATEGORIES(url)
 
 elif mode == MODE_PROGRAMS:
     print "" + url

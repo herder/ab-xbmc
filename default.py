@@ -11,7 +11,7 @@ MODE_POPULAR = 3
 MODE_PROGRAMS = 4
 MODE_VIDEOLINKS = 5
 MODE_PROGRAM_SUBCATEGORY = 6
-
+MODE_PROGRAMS_FOR_SUBCAT = 7
 
 def STARTMENU():
     addDir('Kategorier', '', MODE_CATEGORIES, '')
@@ -21,17 +21,15 @@ def STARTMENU():
 
 def add_video_link(articleData):
     data = json.load(urllib2.urlopen(SERVICE_TRANSLATIONS_SERVER + "?id=" + articleData['aptomaId']))
-    print data
     videoId = None
     for item in data['items']:
         if item['id'] == articleData['aptomaId']:
             videoId = item['videoId']
     if videoId:
         videoLinks = json.load(urllib2.urlopen(VIDEO_LINKS_SERVER + "?id=" + videoId))
-        print "Found data: " + str(data)
-        addLink(getEscapedField(articleData, 'title'), videoLinks['formats']['http'][0]['path'], articleData['image']['moduleEpisodeUri'])
-    else:
-        print "Could not find video Url for id " + articleData['aptomaId']
+        addLink(getEscapedField(articleData, 'title'), videoLinks['formats']['http'][0]['path'],
+                articleData['image']['moduleEpisodeUri'])
+
 
 def CATEGORIES(url):
     get_program_categories(url, PARAMS)
@@ -47,11 +45,29 @@ def POPULAR(url):
 
 
 def load_json(url, params):
-    request = urllib2.Request(url + '?' + params, None, {'Accept': 'application/json', 'Accept-Charset': 'utf-8', 'Content-Type': 'application/json; charset=UTF-8'}, None, False)
+    request = urllib2.Request(url + '?' + params, None, {'Accept': 'application/json', 'Accept-Charset': 'utf-8',
+                                                         'Content-Type': 'application/json; charset=UTF-8'}, None,
+                              False)
+    response = urllib2.urlopen(request)
+    data = response.read()
+    response.close()
+    return json.loads(data, 'ISO-8859-1')
 
-def get_programs_for_category(url, params, name):
-	addDir(name='GET SOME-- SON:' + name, url="", mode=MODE_VIDEOLINKS, iconimage='')
 
+def get_subcategories_for_category(url, params, name):
+    jsonData = load_json(url, params)
+    for category in jsonData['categories']:
+        if name == getEscapedField(category, 'title'):
+            for child in category['children']:
+                cTitle = getEscapedField(child, 'title')
+                cUrl = child['url']
+                addDir(name=cTitle, url=cUrl, mode=MODE_PROGRAMS_FOR_SUBCAT, iconimage='')
+
+
+def get_programs_for_subcategory(url, params, name):
+    jsonData = load_json(url, params)
+    for related in jsonData['playerData']['relatedVideos']:
+        add_video_link(related)
 
 def get_program_categories(url, params):
     print "Opening url: " + url
@@ -66,9 +82,10 @@ def get_program_categories(url, params):
 
         dirMode = MODE_PROGRAM_SUBCATEGORY
 
-        print "Dirmode: " + str(dirMode)
+        #print "Dirmode: " + str(dirMode)
 
         addDir(name=getEscapedField(category, 'title'), url=category['url'], mode=dirMode, iconimage='')
+
 
 def getEscapedField(obj, name):
     try:
@@ -76,12 +93,15 @@ def getEscapedField(obj, name):
     except Exception, e:
         print e
         return 'FAILWHALE'
-    
+
+
 def PROGRAMS(url, name):
     pass
 
+
 def VIDEOLINKS(url, name):
     pass
+
 
 def get_params():
     param = []
@@ -156,7 +176,11 @@ elif mode == MODE_VIDEOLINKS:
     VIDEOLINKS(url, name)
 
 elif mode == MODE_PROGRAM_SUBCATEGORY:
-    get_programs_for_category(url, PARAMS, name)
-    
+    get_subcategories_for_category(url, PARAMS, name)
+
+elif mode == MODE_PROGRAMS_FOR_SUBCAT:
+    get_programs_for_subcategory(url, PARAMS, name)
+
+
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

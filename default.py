@@ -21,7 +21,7 @@ def STARTMENU():
     addDir('Mest sett just nu', '', MODE_POPULAR, '')
 
 
-def add_video_link(articleData):
+def add_video_link(articleData, linkCount):
     data = load_json(SERVICE_TRANSLATIONS_SERVER, "id=" + articleData['aptomaId'])
     videoId = None
     for item in data['items']:
@@ -42,7 +42,7 @@ def add_video_link(articleData):
         episode_ = articleData['episode']
         if episode_:
             title = title + " " + str(episode_)
-        addLink(title, videoLinks['formats']['http'][0]['path'], image, description)
+        addLink(title, videoLinks['formats']['http'][0]['path'], image, description, linkCount)
     else:
         print "Could not find video Url for id " + articleData['aptomaId']
 
@@ -67,8 +67,9 @@ def get_category(url, name):
     if len(jsonData[name]) < 1:
         addDir(name='Inga videos för tillfället', url=url, mode=None, iconimage='')
         return
+    linkCount = len(jsonData[name])
     for program in jsonData[name]:
-        add_video_link(program)
+        add_video_link(program, linkCount)
 
 
 def load_json(url, params):
@@ -93,8 +94,9 @@ def get_subcategories_for_category(url, params, name):
 
 def get_programs_for_subcategory(url, params, name):
     jsonData = load_json(url, params)
+    linkCount = len(jsonData['playerData']['relatedVideos'])
     for related in jsonData['playerData']['relatedVideos']:
-        add_video_link(related)
+        add_video_link(related, linkCount)
 
 
 def get_program_categories(url, params):
@@ -142,11 +144,11 @@ def get_params():
     return param
 
 
-def addLink(name, url, iconimage, description):
+def addLink(name, url, iconimage, description, linkCount):
     ok = True
     liz = xbmcgui.ListItem(name, iconImage=iconimage, thumbnailImage=iconimage)
     liz.setInfo(type="Video", infoLabels={"Title": name, "Description": description})
-    ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=liz)
+    ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=liz, totalItems=linkCount)
     return ok
 
 

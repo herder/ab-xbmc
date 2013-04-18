@@ -17,22 +17,29 @@ def STARTMENU():
     addDir('LIVE', '', MODE_LIVE, '')
     addDir('Mest sett just nu', '', MODE_POPULAR, '')
 
+
 def open_article(articleData):
     data = json.load(urllib2.urlopen("http://aftonbladet-play.drlib.aptoma.no/video.json?id=" + articleData['aptomaId']))
     videoId = data['items'][0]['videoId']
     videoLinks = json.load(urllib2.urlopen(VIDEO_LINKS_SERVER + "?id=" + videoId))
     addDir(data['title'], videoLinks['formats']['http'][0]['path'])
 
+
 def CATEGORIES(url):
     get_program_categories(url, PARAMS)
 
+
+def load_json(url, params):
+    request = urllib2.Request(url + '?' + params, None, {'Accept': 'application/json', 'Accept-Charset': 'utf-8', 'Content-Type': 'application/json; charset=UTF-8'}, None, False)
+    response = urllib2.urlopen(request)
+    data = response.read()
+    response.close()
+    return json.loads(data, 'ISO-8859-1')
+
+
 def get_program_categories(url, params):
     print "Opening url: " + url
-    request = urllib2.Request(url + '?'+ params,None,{'Accept':'application/json','Accept-Charset':'utf-8','Content-Type': 'application/json; charset=UTF-8'},None,False)
-    response = urllib2.urlopen(request)
-    data=response.read()
-    response.close()
-    jsonData = json.loads(data,'ISO-8859-1')
+    jsonData = load_json(url, params)
     for category in jsonData['categories']:
         children = category['children']
         if not children:
@@ -43,14 +50,14 @@ def get_program_categories(url, params):
         addDir(name=getEscapedField(category, 'title'), url=category['url'], mode=dirMode, iconimage='')
 
 
+def getEscapedField(obj, name):
+    try:
+        return obj[name].encode("ascii", "ignore")
+    except Exception, e:
+        print e
+        return 'FAILWHALE'
 
-def getEscapedField(obj,name):
-	try:
-		return obj[name].encode("ascii","ignore")
-	except Exception, e:
-		print e
-		return 'FAILWHALE'
-    
+
 def PROGRAMS(url, name):
     pass
 

@@ -1,4 +1,4 @@
-import urllib, urllib2, re, xbmcplugin, xbmcgui, json
+import urllib, urllib2, re, xbmc, xbmcplugin, xbmcgui, json
 
 SERVICE_URL = "http://tv.aftonbladet.se/webbtv/"
 SERVICE_TRANSLATIONS_SERVER = "http://aftonbladet-play.drlib.aptoma.no/video.json"
@@ -18,12 +18,13 @@ def STARTMENU():
     addDir('Mest sett just nu', '', MODE_POPULAR, '')
 
 
-def open_article(articleData):
+def add_video_link(articleData):
     data = json.load(urllib2.urlopen("http://aftonbladet-play.drlib.aptoma.no/video.json?id=" + articleData['aptomaId']))
+    print data
     videoId = data['items'][0]['videoId']
     videoLinks = json.load(urllib2.urlopen(VIDEO_LINKS_SERVER + "?id=" + videoId))
-    addDir(data['title'], videoLinks['formats']['http'][0]['path'])
-
+    print data
+    addLink(getEscapedField(articleData, 'title'), videoLinks['formats']['http'][0]['path'], articleData['image']['moduleEpisodeUri'])
 
 def CATEGORIES(url):
     get_program_categories(url, PARAMS)
@@ -41,6 +42,7 @@ def get_program_categories(url, params):
     print "Opening url: " + url
     jsonData = load_json(url, params)
     for category in jsonData['categories']:
+        print category
         children = category['children']
         if not children:
             dirMode = MODE_PROGRAMS
@@ -49,6 +51,9 @@ def get_program_categories(url, params):
         print "Dirmode: " + str(dirMode)
         addDir(name=getEscapedField(category, 'title'), url=category['url'], mode=dirMode, iconimage='')
 
+    if jsonData['hotPrograms']:
+        for video in jsonData['hotPrograms']:
+            add_video_link(video)
 
 def getEscapedField(obj, name):
     try:
@@ -56,23 +61,12 @@ def getEscapedField(obj, name):
     except Exception, e:
         print e
         return 'FAILWHALE'
-
-
+    
 def PROGRAMS(url, name):
     pass
 
-
 def VIDEOLINKS(url, name):
-    req = urllib2.Request(url)
-    req.add_header('User-Agent',
-                   'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
-    response = urllib2.urlopen(req)
-    link = response.read()
-    response.close()
-    match = re.compile('').findall(link)
-    for url in match:
-        addLink(name, url, '')
-
+    pass
 
 def get_params():
     param = []

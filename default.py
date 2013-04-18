@@ -30,6 +30,15 @@ def CATEGORIES(url):
     get_program_categories(url, PARAMS)
 
 
+def POPULAR(url):
+    if url is None:
+        print "URL == None, setting default"
+        url = SERVICE_URL
+        jsonData = load_json(url, PARAMS)
+        for program in jsonData['hotPrograms']:
+            addDir(name=getEscapedField(program, 'title'), url=program['aptomaId'], mode=MODE_PROGRAMS, iconimage='')
+
+
 def load_json(url, params):
     request = urllib2.Request(url + '?' + params, None, {'Accept': 'application/json', 'Accept-Charset': 'utf-8', 'Content-Type': 'application/json; charset=UTF-8'}, None, False)
     response = urllib2.urlopen(request)
@@ -57,7 +66,7 @@ def get_program_categories(url, params):
 
 def getEscapedField(obj, name):
     try:
-        return obj[name].encode("ascii", "ignore")
+        return obj[name].encode("utf-8", "ignore")
     except Exception, e:
         print e
         return 'FAILWHALE'
@@ -135,6 +144,8 @@ elif mode == MODE_CATEGORIES:
         print "URL == None, setting default"
         url = SERVICE_URL
     CATEGORIES(url)
+elif mode == MODE_POPULAR:
+    POPULAR(url)
 
 elif mode == MODE_PROGRAMS:
     print "" + url

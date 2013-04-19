@@ -86,7 +86,8 @@ def load_json(url, params):
 
 def get_subcategories_for_category(url, params, name):
     jsonData = load_json(url, params)
-    for category in jsonData['categories']:
+    page = jsonData['page']
+    for category in page['categories']:
         if name == getEscapedField(category, 'title'):
             for child in category['children']:
                 cTitle = getEscapedField(child, 'title')
@@ -104,11 +105,12 @@ def get_programs_for_subcategory(url, params, name):
 def get_program_categories(url, params):
     print "Opening url: " + url
     jsonData = load_json(url, params)
-    for category in jsonData['categories']:
-        iconimage = ''
+    #if (not 'categories' in jsonData) or (len(jsonData['categories'] < 1)):
+    #    addDir(name='Inga kategorier för tillfället', url=url, mode=None, iconimage='')
+    #    return
 
-        if category['image']:
-            iconimage = category['image']['']
+    page = jsonData['page']
+    for category in page['categories']:
         dirMode = MODE_PROGRAM_SUBCATEGORY
 
         addDir(name=getEscapedField(category, 'title'), url=category['url'], mode=dirMode, iconimage='')

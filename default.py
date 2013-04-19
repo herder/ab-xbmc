@@ -109,7 +109,6 @@ def get_program_categories(url, params):
     page = jsonData['page']
     for category in page['categories']:
         dirMode = MODE_PROGRAM_SUBCATEGORY
-
         addDir(name=getEscapedField(category, 'title'), url=category['url'], mode=dirMode, iconimage='')
 
 

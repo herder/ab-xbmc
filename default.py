@@ -105,9 +105,6 @@ def get_programs_for_subcategory(url, params, name):
 def get_program_categories(url, params):
     print "Opening url: " + url
     jsonData = load_json(url, params)
-    #if (not 'categories' in jsonData) or (len(jsonData['categories'] < 1)):
-    #    addDir(name='Inga kategorier för tillfället', url=url, mode=None, iconimage='')
-    #    return
 
     page = jsonData['page']
     for category in page['categories']:
